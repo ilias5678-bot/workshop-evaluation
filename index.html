@@ -3,38 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DGfB 2026 - Workshop Evaluation</title>
+    <title>Workshop Evaluation 2026</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; shadow: 0 10px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        button:disabled { background: #ccc; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; line-height: 1.5; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { margin: 0 0 10px 0; color: #1a1a1a; font-size: 1.5rem; text-align: center; }
+        p.subtitle { color: #666; font-size: 14px; text-align: center; margin-bottom: 25px; }
+        label { display: block; margin-top: 18px; font-weight: 600; color: #374151; font-size: 14px; }
+        select, textarea, button { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        select:focus, textarea:focus { outline: none; border-color: #2563eb; ring: 2px solid #bfdbfe; }
+        textarea { resize: vertical; font-family: inherit; }
+        button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 25px; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
         .hidden { display: none; }
+        .success-card { text-align: center; padding: 40px 20px; }
+        .success-icon { font-size: 48px; color: #10b981; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card" id="formBox">
-    <h2 style="margin:0">Workshop Evaluation</h2>
-    <p style="color: #666; font-size: 14px;">Dein Feedback ist komplett anonym.</p>
+    <h2>Workshop Evaluation</h2>
+    <p class="subtitle">Vielen Dank für deine Zeit. Dein Feedback ist zu 100% anonym.</p>
     
     <form id="evalForm">
-        <label>Workshop</label>
+        <label for="workshop">Workshop auswählen</label>
         <select id="workshop" required>
-            <option value="">Wähle deinen Workshop...</option>
-            <option value="Mein erster Antrag: von der Idee zum Forschungsvorhaben.">Mein erster Antrag: von der Idee zum Forschungsvorhaben.</option>
-            <option value="Workshop 2">Workshop 2</option>
-            <option value="Workshop 3">Workshop 3</option>
-            <option value="Workshop 4">Workshop 4</option>
-            <option value="Workshop 5">Workshop 5</option>
-            <option value="Workshop 6">Workshop 6</option>
-            <option value="Workshop 7">Workshop 7</option>
-            <option value="Workshop 8">Workshop 8</option>
-        </select>
+            <option value="">Bitte wählen...</option>
+            <option value="Antrag">Mein erster Antrag: von der Idee zum Forschungsvorhaben.</option>
+            <option value="Forschungsdaten">Zwischen Theorie und Praxis: Forschungsdaten im echten Alltag.</option>
+            <option value="Netzwerken">Netzwerken leicht gemacht: Wie baue ich mir mein eigenes Netzwerk?</option>
+            <option value="Klinische Forschung">Klinische Forschung – wozu das Ganze? Spannende Beispiele aus Orthopädie und Unfallchirurgie.</option>
+            <option value="Produktentwickler">Produktentwickler – was machen die eigentlich genau?</option>
+            <option value="Mentor">Meet the Mentor – Prof. Dr. Christof Hurschler</option>
+            </select>
 
-        <label style="display:block; margin-top:15px;">Bewertung</label>
+        <label for="rating">Gesamtbewertung</label>
         <select id="rating" required>
+            <option value="">Wähle eine Note...</option>
             <option value="5">⭐⭐⭐⭐⭐ (Sehr gut)</option>
             <option value="4">⭐⭐⭐⭐ (Gut)</option>
             <option value="3">⭐⭐⭐ (Befriedigend)</option>
@@ -42,26 +49,34 @@
             <option value="1">⭐ (Mangelhaft)</option>
         </select>
 
-        <label style="display:block; margin-top:15px;">Anmerkungen</label>
-        <textarea id="feedback" rows="4" placeholder="Was war gut? Was nicht?"></textarea>
+        <label for="feedback">Anmerkungen & Lob (optional)</label>
+        <textarea id="feedback" rows="4" placeholder="Was hat dir besonders gefallen? Was können wir verbessern?"></textarea>
 
-        <button type="submit" id="btn">Absenden</button>
+        <button type="submit" id="submitBtn">Feedback anonym absenden</button>
     </form>
 </div>
 
-<div class="card hidden" id="successBox" style="text-align:center">
+<div class="card hidden success-card" id="successBox">
+    <div class="success-icon">Check!</div>
     <h2>Vielen Dank!</h2>
-    <p>Deine Bewertung wurde erfolgreich übermittelt.</p>
+    <p>Deine Bewertung wurde erfolgreich und anonym übermittelt. Viel Erfolg im weiteren Verlauf!</p>
+    <button onclick="location.reload()" style="background: #64748b; font-size: 14px; width: auto; padding: 8px 20px;">Neue Bewertung abgeben</button>
 </div>
 
 <script>
-    const WEB_APP_URL = "DEINE_WEB_APP_URL"; // HIER DEINE URL EINSETZEN
+    // ERSETZE DEN FOLGENDEN LINK MIT DEINER GOOGLE WEB APP URL:
+    const WEB_APP_URL = "DEINE_WEB_APP_URL_HIER_EINSETZEN";
 
-    document.getElementById('evalForm').addEventListener('submit', function(e) {
+    const form = document.getElementById('evalForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formBox = document.getElementById('formBox');
+    const successBox = document.getElementById('successBox');
+
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const btn = document.getElementById('btn');
-        btn.disabled = true;
-        btn.innerText = "Wird gesendet...";
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Wird gesendet...";
 
         const data = {
             workshop: document.getElementById('workshop').value,
@@ -69,19 +84,25 @@
             feedback: document.getElementById('feedback').value
         };
 
+        // Senden der Daten an Google Sheets via Apps Script
         fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors', // Wichtig für Google Apps Script
+            mode: 'no-cors', 
             cache: 'no-cache',
             body: JSON.stringify(data)
-        }).then(() => {
-            document.getElementById('formBox').classList.add('hidden');
-            document.getElementById('successBox').classList.remove('hidden');
-        }).catch(err => {
-            alert("Fehler: " + err);
-            btn.disabled = false;
+        })
+        .then(() => {
+            formBox.classList.add('hidden');
+            successBox.classList.remove('hidden');
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert("Es gab einen Fehler beim Senden. Bitte versuche es erneut.");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Feedback anonym absenden";
         });
     });
 </script>
+
 </body>
 </html>

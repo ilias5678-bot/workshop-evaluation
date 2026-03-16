@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Evaluation</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; shadow: 0 10px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:disabled { background: #ccc; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="formBox">
+    <h2 style="margin:0">Workshop Evaluation</h2>
+    <p style="color: #666; font-size: 14px;">Dein Feedback ist komplett anonym.</p>
+    
+    <form id="evalForm">
+        <label>Workshop</label>
+        <select id="workshop" required>
+            <option value="">Wähle deinen Workshop...</option>
+            <option value="Workshop 1">Workshop 1</option>
+            <option value="Workshop 2">Workshop 2</option>
+            <option value="Workshop 3">Workshop 3</option>
+            <option value="Workshop 4">Workshop 4</option>
+            <option value="Workshop 5">Workshop 5</option>
+            <option value="Workshop 6">Workshop 6</option>
+            <option value="Workshop 7">Workshop 7</option>
+            <option value="Workshop 8">Workshop 8</option>
+        </select>
+
+        <label style="display:block; margin-top:15px;">Bewertung</label>
+        <select id="rating" required>
+            <option value="5">⭐⭐⭐⭐⭐ (Sehr gut)</option>
+            <option value="4">⭐⭐⭐⭐ (Gut)</option>
+            <option value="3">⭐⭐⭐ (Befriedigend)</option>
+            <option value="2">⭐⭐ (Ausreichend)</option>
+            <option value="1">⭐ (Mangelhaft)</option>
+        </select>
+
+        <label style="display:block; margin-top:15px;">Anmerkungen</label>
+        <textarea id="feedback" rows="4" placeholder="Was war gut? Was nicht?"></textarea>
+
+        <button type="submit" id="btn">Absenden</button>
+    </form>
+</div>
+
+<div class="card hidden" id="successBox" style="text-align:center">
+    <h2>Vielen Dank!</h2>
+    <p>Deine Bewertung wurde erfolgreich übermittelt.</p>
+</div>
+
+<script>
+    const WEB_APP_URL = "DEINE_WEB_APP_URL"; // HIER DEINE URL EINSETZEN
+
+    document.getElementById('evalForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn');
+        btn.disabled = true;
+        btn.innerText = "Wird gesendet...";
+
+        const data = {
+            workshop: document.getElementById('workshop').value,
+            rating: document.getElementById('rating').value,
+            feedback: document.getElementById('feedback').value
+        };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Wichtig für Google Apps Script
+            cache: 'no-cache',
+            body: JSON.stringify(data)
+        }).then(() => {
+            document.getElementById('formBox').classList.add('hidden');
+            document.getElementById('successBox').classList.remove('hidden');
+        }).catch(err => {
+            alert("Fehler: " + err);
+            btn.disabled = false;
+        });
+    });
+</script>
+</body>
+</html>

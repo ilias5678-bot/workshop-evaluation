@@ -43,4 +43,83 @@
                 <div class="rating-item"><label>Ich habe neue Erkenntnisse oder Wissen gewonnen</label><select id="q5" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
                 <div class="rating-item"><label>Die Zeitplanung war angemessen</label><select id="q6" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
                 <div class="rating-item"><label>Der Ablauf des Workshops war gut strukturiert</label><select id="q7" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
-                <div class="rating-item"><label>Der Raum / die technische Ausstattung waren geeignet</label><select id="q8" required><option value="">Punkte...</option><option value="5">5</option><option
+                <div class="rating-item"><label>Der Raum / die technische Ausstattung waren geeignet</label><select id="q8" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+                <div class="rating-item"><label>Die Dauer des Workshops war passend</label><select id="q9" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+                <div class="rating-item"><label>Ich kann die Inhalte in meinem Alltag anwenden</label><select id="q10" required><option value="">Punkte...</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+
+                <div class="section-title">2. Offene Fragen</div>
+                <label>Was hat Ihnen am besten gefallen?</label><textarea id="o1" rows="2"></textarea>
+                <label>Was hat Ihnen weniger gut gefallen?</label><textarea id="o2" rows="2"></textarea>
+                <label>Zukunftsthemen?</label><textarea id="o3" rows="2"></textarea>
+                <label>Weitere Anmerkungen?</label><textarea id="o4" rows="2"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Evaluation anonym absenden</button>
+        </form>
+    </div>
+</div>
+
+<div class="card hidden success" id="successBox">
+    <div style="font-size: 50px; color: #10b981; margin-bottom: 20px; text-align:center">✓</div>
+    <h2>Vielen Dank!</h2>
+    <p style="text-align:center">Ihre Bewertung wurde übermittelt.</p>
+    <button onclick="location.reload()" style="background: #64748b;">Nächste Bewertung</button>
+</div>
+
+<script>
+    // Integrierte Google Apps Script URL
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZlUFyidFiGHP8h-xcftu02OExrPlO4zlRVkrzz4HBs7NBA5G173utoyRnW6AvdS0/exec";
+    const STORAGE_KEY = "dgfb_eval_draft_v2";
+
+    window.onload = () => {
+        const inputs = document.querySelectorAll('select, textarea');
+        
+        // Entwurf aus LocalStorage laden
+        const draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (draft) {
+            Object.keys(draft).forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = draft[id];
+            });
+            document.getElementById('draftNote').style.display = "block";
+        }
+        
+        // Automatisch speichern bei jeder Eingabe
+        inputs.forEach(el => {
+            el.addEventListener('input', () => {
+                const currentDraft = {};
+                inputs.forEach(i => currentDraft[i.id] = i.value);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(currentDraft));
+            });
+        });
+
+        // Formular absenden
+        document.getElementById('evalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Wird gesendet...";
+
+            const data = {};
+            inputs.forEach(i => data[i.id] = i.value);
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Google Apps Script benötigt oft no-cors für einfache POSTs
+                body: JSON.stringify(data)
+            }).then(() => {
+                // Bei Erfolg: Entwurf löschen und Erfolgsmeldung zeigen
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('formBox').classList.add('hidden');
+                document.getElementById('successBox').classList.remove('hidden');
+            }).catch((error) => {
+                console.error('Error:', error);
+                alert("Fehler beim Senden. Bitte prüfen Sie Ihre Verbindung.");
+                btn.disabled = false;
+                btn.innerText = "Evaluation anonym absenden";
+            });
+        });
+    };
+</script>
+</body>
+</html>

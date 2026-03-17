@@ -11,13 +11,12 @@
         .content { padding: 20px; }
         h2 { margin: 10px 0 5px; color: #1a1a1a; text-align: center; font-size: 1.3rem; }
         .subtitle { color: #666; font-size: 0.85rem; text-align: center; margin-bottom: 20px; }
-        .status-badge { display: block; text-align: center; font-size: 12px; margin: 10px 0; padding: 8px; border-radius: 8px; background: #dcfce7; color: #166534; font-weight: bold; }
-        .section-title { background: #e2e8f0; padding: 8px; border-radius: 5px; margin: 20px 0 10px; font-weight: bold; font-size: 0.9rem; color: #1e293b; }
+        .section-title { background: #e2e8f0; padding: 8px; border-radius: 5px; margin: 10px 0 10px; font-weight: bold; font-size: 0.9rem; color: #1e293b; }
         label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: #374151; }
         select, textarea, button { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
         .rating-item { border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         button { background: #005596; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 25px; padding: 15px; transition: 0.3s; }
-        button:disabled { background: #9ca3af; cursor: not-allowed; opacity: 0.6; }
+        button:hover { background: #00447a; }
         .hidden { display: none; }
         .success { text-align: center; padding: 40px 20px; }
         #draftNote { background: #fef3c7; color: #92400e; padding: 8px; font-size: 12px; border-radius: 5px; text-align: center; display: none; margin-bottom: 15px; border: 1px solid #f59e0b; }
@@ -34,18 +33,6 @@
         <p class="subtitle">Ihr Feedback ist anonym. Fortschritt wird lokal gespeichert.</p>
         
         <form id="evalForm">
-            <label>Besuchter Workshop</label>
-            <select id="workshop" required onchange="updateUIForWorkshop(this.value)">
-                <option value="">Bitte wählen...</option>
-                <option value="Antrag">Mein erster Antrag: von der Idee zum Forschungsvorhaben.</option>
-                <option value="Forschungsdaten">Zwischen Theorie und Praxis: Forschungsdaten im echten Alltag.</option>
-                <option value="Netzwerken">Netzwerken leicht gemacht: Wie baue ich mir mein eigenes Netzwerk?</option>
-                <option value="Klinische Forschung">Klinische Forschung – wozu das Ganze?</option>
-                <option value="Produktentwickler">Produktentwickler – was machen die eigentlich genau?</option>
-                <option value="Mentor">Meet the Mentor</option>
-            </select>
-            <div id="validatedMsg" class="status-badge" style="display:none">✓ Sie haben diesen Workshop bereits evaluiert!</div>
-
             <div id="questionsArea">
                 <div class="section-title">1. Inhalte (1=Nein, 5=Voll zu)</div>
                 <div class="rating-item"><label>Inhalte waren verständlich erklärt</label><select id="q1" required><option value="">Punkte...</option><option value="5">5 - Voll zu</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1 - Nein</option></select></div>
@@ -75,40 +62,17 @@
     <div style="font-size: 50px; color: #10b981; margin-bottom: 20px; text-align:center">✓</div>
     <h2>Vielen Dank!</h2>
     <p style="text-align:center">Ihre Bewertung wurde übermittelt.</p>
-    <button onclick="location.reload()" style="background: #64748b;">Nächsten Workshop bewerten</button>
+    <button onclick="location.reload()" style="background: #64748b;">Zurück zum Start</button>
 </div>
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzXC2Sl6rQJ8CqbNnc_JmWRJhJDu3-h4l8yU2qEbsjIPMzBMmL73hHeLhm_FduFlT4/exec";
-    const STORAGE_KEY = "dgfb_eval_draft";
-    const DONE_KEY = "dgfb_validated_workshops";
-
-    function updateUIForWorkshop(selectedWs) {
-        const validated = JSON.parse(localStorage.getItem(DONE_KEY) || "[]");
-        const msg = document.getElementById('validatedMsg');
-        const submitBtn = document.getElementById('submitBtn');
-        const isDone = validated.includes(selectedWs);
-        
-        msg.style.display = (selectedWs && isDone) ? "block" : "none";
-        submitBtn.disabled = isDone;
-        if(isDone) submitBtn.innerText = "Bereits evaluiert";
-        else submitBtn.innerText = "Evaluation anonym absenden";
-    }
-
-    function refreshDropdownLabels() {
-        const validated = JSON.parse(localStorage.getItem(DONE_KEY) || "[]");
-        const select = document.getElementById('workshop');
-        Array.from(select.options).forEach(opt => {
-            if (validated.includes(opt.value) && !opt.text.startsWith("✓")) {
-                opt.text = "✓ " + opt.text;
-            }
-        });
-    }
+    const STORAGE_KEY = "dgfb_eval_draft_simple";
 
     window.onload = () => {
-        refreshDropdownLabels();
         const inputs = document.querySelectorAll('select, textarea');
         
+        // Entwurf laden
         const draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (draft) {
             Object.keys(draft).forEach(id => {
@@ -116,9 +80,9 @@
                 if(el) el.value = draft[id];
             });
             document.getElementById('draftNote').style.display = "block";
-            updateUIForWorkshop(document.getElementById('workshop').value);
         }
         
+        // Bei Eingabe speichern
         inputs.forEach(el => {
             el.addEventListener('input', () => {
                 const currentDraft = {};
@@ -127,6 +91,7 @@
             });
         });
 
+        // Absenden
         document.getElementById('evalForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -141,11 +106,7 @@
                 mode: 'no-cors',
                 body: JSON.stringify(data)
             }).then(() => {
-                const validated = JSON.parse(localStorage.getItem(DONE_KEY) || "[]");
-                if(!validated.includes(data.workshop)) validated.push(data.workshop);
-                localStorage.setItem(DONE_KEY, JSON.stringify(validated));
                 localStorage.removeItem(STORAGE_KEY);
-                
                 document.getElementById('formBox').classList.add('hidden');
                 document.getElementById('successBox').classList.remove('hidden');
             }).catch(() => {
